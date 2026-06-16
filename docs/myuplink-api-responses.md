@@ -172,14 +172,25 @@ Returns an array of ~83 data points. Optional `?parameters=4,8,32628` filters by
 | 4 | Current outdoor temperature (BT1) | °C | `measure_temperature.outdoor` |
 | 32628 | Hot water temperature | °C | `measure_temperature.hotwater` |
 | 8 | Supply line (BT2) | °C | `measure_temperature.supply` |
-| 22130 | Instantaneous used power | W | `measure_power` |
+| 22130 | Instantaneous used power | W | `measure_power` (split per category — see below) |
+| 28393 | Tot. consumption | kWh | `meter_power` (split per category — see below) |
 
-**Derived power split** (`measure_power.heating` / `measure_power.hotwater`): the pump exposes only
-a single live power reading (22130), not a per-category breakdown. `device.js` attributes all of
-22130 to whichever category the pump is currently serving, read from the operating priority
-**14950** (`{0=Off, 1=Heating, 2=Cooling, 3=Hot water, 4=Pool, 5=Pool 2, 6=Pre-heating}`): heating
-when priority ∈ {1, 6}, hot water when priority = 3, otherwise 0 for both (standby draw stays
-unattributed). This runs on a separate 1-minute poll (`FAST_POLL_INTERVAL_MS`) so cost can be
-attributed within short spot-tariff windows — the cumulative kWh counters (25137/25138) only
-refresh every ~20–30 min and are too coarse for that. Fetched via the `?parameters=22130,14950`
-filter rather than the full ~83-point pull.
+**Per-category split into two devices** (`measure_power` / `meter_power` on each of the Heating
+and Hot-water devices): the pump exposes only a single live power reading (**22130**) and a single
+real cumulative meter (**28393**, kWh) — no per-category breakdown. Each pump is paired as **two
+Homey consumer devices** (`data.role` = `heating` / `hotwater`) so Homey Energy can cost them
+separately; `device.js` derives each device's energy from the operating priority **14950**
+(`{0=Off, 1=Heating, 2=Cooling, 3=Hot water, 4=Pool, 5=Pool 2, 6=Pre-heating}`): heating counts
+priority ∈ {1, 6}, hot water counts priority = 3.
+
+- **Live power** (`measure_power`): a 1-minute poll (`FAST_POLL_INTERVAL_MS`, fetched via
+  `?parameters=22130,14950`) sets each device's `measure_power` to 22130 when the pump is serving
+  that device's category, else 0. It also integrates 22130 over elapsed time into per-window
+  accumulators (total vs this category).
+- **Energy** (`meter_power`): the 5-minute main poll reads 28393 and attributes its increase since
+  the last poll to the device's category, weighted by that device's power-integration share of the
+  window. This reconciles the two meters with the pump's true total and is more accurate than
+  Homey's approximation; the flat per-category kWh counters (25137/25138) refresh only every
+  ~20–30 min and are too coarse. Energy spent in other priorities (standby/cooling) is attributed
+  to neither, so heating + hot water ≤ pump total. The accumulated kWh and last meter reading are
+  persisted to the device store so `meter_power` stays monotonic across restarts.

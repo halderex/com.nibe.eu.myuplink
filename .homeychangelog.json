@@ -1,5 +1,9 @@
 {
   "1.0.0": {
     "en": "First version!"
+  },
+  "0.2.0": {
+    "en": "The heat pump now reports to Homey Energy as two consumer devices — Heating and Hot water — each with its own live power and cost. Breaking change: remove your old heat-pump device and re-pair to get the two new devices.",
+    "sv": "Värmepumpen rapporterar nu till Homey Energy som två förbrukarenheter — Värme och Varmvatten — var och en med egen effekt och kostnad. Brytande ändring: ta bort din gamla värmepumpsenhet och para om för att få de två nya enheterna."
   }
 }

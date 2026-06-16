@@ -4,18 +4,12 @@
     "sv": "Nibe Värmepump"
   },
   "class": "heatpump",
-  "energy": {
-    "cumulative": true,
-    "cumulativeImportedCapability": "meter_power"
-  },
   "capabilities": [
     "measure_temperature",
     "measure_temperature.outdoor",
     "measure_temperature.hotwater",
     "measure_temperature.supply",
     "measure_power",
-    "measure_power.heating",
-    "measure_power.hotwater",
     "meter_power",
     "target_temperature",
     "hot_water_boost",
@@ -35,14 +29,8 @@
     "measure_temperature.supply": {
       "title": { "en": "Supply", "sv": "Tillopp" }
     },
-    "measure_power.heating": {
-      "title": { "en": "Power (heating)", "sv": "Effekt (värme)" }
-    },
-    "measure_power.hotwater": {
-      "title": { "en": "Power (hot water)", "sv": "Effekt (varmvatten)" }
-    },
     "meter_power": {
-      "title": { "en": "Total consumption", "sv": "Total förbrukning" }
+      "title": { "en": "Consumption", "sv": "Förbrukning" }
     },
     "target_temperature": {
       "title": { "en": "Indoor", "sv": "Inomhus" },

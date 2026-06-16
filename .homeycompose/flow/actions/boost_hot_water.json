@@ -1,14 +1,14 @@
 {
   "title": { "en": "Boost hot water", "sv": "Forcera varmvatten" },
   "titleFormatted": {
-    "en": "Boost hot water for [[duration]]",
-    "sv": "Forcera varmvatten i [[duration]]"
+    "en": "Boost hot water on [[device]] for [[duration]]",
+    "sv": "Forcera varmvatten på [[device]] i [[duration]]"
   },
   "args": [
     {
       "type": "device",
       "name": "device",
-      "filter": "driver_id=heatpump"
+      "filter": "capabilities=hot_water_boost"
     },
     {
       "type": "dropdown",

@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.nibe.eu.myuplink",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "platforms": [
@@ -48,14 +48,14 @@
           "sv": "Forcera varmvatten"
         },
         "titleFormatted": {
-          "en": "Boost hot water for [[duration]]",
-          "sv": "Forcera varmvatten i [[duration]]"
+          "en": "Boost hot water on [[device]] for [[duration]]",
+          "sv": "Forcera varmvatten på [[device]] i [[duration]]"
         },
         "args": [
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=heatpump"
+            "filter": "capabilities=hot_water_boost"
           },
           {
             "type": "dropdown",
@@ -128,18 +128,12 @@
         "sv": "Nibe Värmepump"
       },
       "class": "heatpump",
-      "energy": {
-        "cumulative": true,
-        "cumulativeImportedCapability": "meter_power"
-      },
       "capabilities": [
         "measure_temperature",
         "measure_temperature.outdoor",
         "measure_temperature.hotwater",
         "measure_temperature.supply",
         "measure_power",
-        "measure_power.heating",
-        "measure_power.hotwater",
         "meter_power",
         "target_temperature",
         "hot_water_boost",
@@ -171,22 +165,10 @@
             "sv": "Tillopp"
           }
         },
-        "measure_power.heating": {
-          "title": {
-            "en": "Power (heating)",
-            "sv": "Effekt (värme)"
-          }
-        },
-        "measure_power.hotwater": {
-          "title": {
-            "en": "Power (hot water)",
-            "sv": "Effekt (varmvatten)"
-          }
-        },
         "meter_power": {
           "title": {
-            "en": "Total consumption",
-            "sv": "Total förbrukning"
+            "en": "Consumption",
+            "sv": "Förbrukning"
           }
         },
         "target_temperature": {

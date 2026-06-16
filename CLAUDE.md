@@ -98,16 +98,24 @@ store).
   custom SSL/CA bundle is needed (the Python runtime's missing CA store is no longer a concern).
 - **`drivers/heatpump/driver.js`** — `NibeDriver extends OAuth2Driver`. Pairing/repair are driven
   by the library's built-in `login_oauth2` flow (see `driver.compose.json` pair views).
-  `onPairListDevices({ oAuth2Client })` lists the user's devices from `systems/me`.
-- **`drivers/heatpump/device.js`** — `NibeDevice extends OAuth2Device`. `onOAuth2Init` polls
-  `/points` every 5 min, maps parameter IDs to capabilities (`POINT_MAP`, with per-point kind/scale
-  for both read and write), and pushes capability changes back via `setPoints` (using
-  `this.oAuth2Client`; the library handles token refresh/rotation transparently). A second 1-min
-  poll (`FAST_POLL_INTERVAL_MS`) splits live power (22130) across `measure_power.heating` /
-  `measure_power.hotwater` by the pump's operating priority (14950), for cost attribution within
-  short spot-tariff windows. Writable controls (target temperature, hot-water/ventilation boost,
-  ventilation mode) plus the `boost_hot_water` Flow action need a `WRITESYSTEM` token; a 403
-  surfaces a "re-pair" (or Premium) warning.
+  `onPairListDevices({ oAuth2Client })` lists the user's devices from `systems/me`, emitting **two
+  Homey devices per pump** (`data.role` = `heating` / `hotwater`) so Homey Energy can cost the two
+  categories separately.
+- **`drivers/heatpump/device.js`** — `NibeDevice extends OAuth2Device`. One class serves both
+  roles: at `onOAuth2Init` it reads `data.role`, sets the device class, and prunes capabilities to
+  that role's set (`ROLES`, plus Premium gating). It polls `/points` every 5 min, maps parameter
+  IDs to capabilities (`POINT_MAP`, temps + writable controls only, with per-point kind/scale), and
+  pushes capability changes back via `setPoints` (using `this.oAuth2Client`; the library handles
+  token refresh/rotation transparently). Each device is a Homey **consumer** (no `energy.cumulative`
+  flag — that flag mis-classified the device as a whole-home meter, which is why it never appeared
+  as a consumer). Per-category energy is derived, not read directly: a 1-min poll
+  (`FAST_POLL_INTERVAL_MS`) sets `measure_power` to live power (22130) when the pump's operating
+  priority (14950) matches the role and integrates it into a window accumulator; the 5-min poll
+  splits the real cumulative meter's (28393) per-window increase into the role's `meter_power` by
+  that power-weighted share (persisted to the store so `meter_power` stays monotonic). Writable
+  controls (target temperature, hot-water/ventilation boost, ventilation mode) plus the
+  `boost_hot_water` Flow action need a `WRITESYSTEM` token; a 403 surfaces a "re-pair" (or Premium)
+  warning.
 
 See `docs/myuplink-api-responses.md` for OAuth endpoints and the points/capability mapping.
 
