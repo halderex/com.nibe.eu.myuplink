@@ -1,0 +1,83 @@
+{
+  "name": {
+    "en": "Nibe Heat Pump",
+    "sv": "Nibe Värmepump"
+  },
+  "class": "heatpump",
+  "energy": {
+    "cumulative": true,
+    "cumulativeImportedCapability": "meter_power"
+  },
+  "capabilities": [
+    "measure_temperature",
+    "measure_temperature.outdoor",
+    "measure_temperature.hotwater",
+    "measure_temperature.supply",
+    "measure_power",
+    "measure_power.heating",
+    "measure_power.hotwater",
+    "meter_power",
+    "target_temperature",
+    "hot_water_boost",
+    "ventilation_boost",
+    "ventilation_mode"
+  ],
+  "capabilitiesOptions": {
+    "measure_temperature": {
+      "title": { "en": "Indoor", "sv": "Inomhus" }
+    },
+    "measure_temperature.outdoor": {
+      "title": { "en": "Outdoor", "sv": "Utomhus" }
+    },
+    "measure_temperature.hotwater": {
+      "title": { "en": "Hot water", "sv": "Varmvatten" }
+    },
+    "measure_temperature.supply": {
+      "title": { "en": "Supply", "sv": "Tillopp" }
+    },
+    "measure_power.heating": {
+      "title": { "en": "Power (heating)", "sv": "Effekt (värme)" }
+    },
+    "measure_power.hotwater": {
+      "title": { "en": "Power (hot water)", "sv": "Effekt (varmvatten)" }
+    },
+    "meter_power": {
+      "title": { "en": "Total consumption", "sv": "Total förbrukning" }
+    },
+    "target_temperature": {
+      "title": { "en": "Indoor", "sv": "Inomhus" },
+      "min": 5,
+      "max": 35,
+      "step": 0.5,
+      "units": { "en": "°C" }
+    }
+  },
+  "images": {
+    "small": "/drivers/heatpump/assets/images/small.png",
+    "large": "/drivers/heatpump/assets/images/large.png",
+    "xlarge": "/drivers/heatpump/assets/images/xlarge.png"
+  },
+  "platforms": ["local"],
+  "connectivity": ["cloud"],
+  "pair": [
+    {
+      "id": "login_oauth2",
+      "template": "login_oauth2"
+    },
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": { "next": "add_devices" }
+    },
+    {
+      "id": "add_devices",
+      "template": "add_devices"
+    }
+  ],
+  "repair": [
+    {
+      "id": "login_oauth2",
+      "template": "login_oauth2"
+    }
+  ]
+}

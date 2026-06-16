@@ -1,0 +1,11 @@
+{
+  "settings": {
+    "debugLogging": {
+      "label": "Aktivera felsökningsloggning",
+      "hint": "Loggar beslut om tokenförnyelse, pollresultat och API-detaljer i Homey-apploggen."
+    }
+  },
+  "device": {
+    "unavailable": "myUplink otillgänglig — kontrollera anslutningen eller koppla om enheten."
+  }
+}

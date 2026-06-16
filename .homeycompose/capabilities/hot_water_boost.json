@@ -1,0 +1,8 @@
+{
+  "type": "boolean",
+  "title": { "en": "Hot water boost", "sv": "Extra varmvatten" },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "toggle",
+  "insights": false
+}

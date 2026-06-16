@@ -1,0 +1,314 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.nibe.eu.myuplink",
+  "version": "0.1.0",
+  "compatibility": ">=13.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Nibe HP Energy",
+    "sv": "Nibe VP Energy"
+  },
+  "description": {
+    "en": "Integrate your Nibe Heat Pump in Homey Energy",
+    "sv": "Integrera din Nibe värmepump i Homey Energy"
+  },
+  "category": [
+    "energy"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Henrik Aldermo",
+    "email": "henrik.aldermo@outlook.com"
+  },
+  "source": "https://github.com/halderex/com.nibe.eu.myuplink",
+  "bugs": {
+    "url": "https://github.com/halderex/com.nibe.eu.myuplink/issues"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Henrik Aldermo"
+      }
+    ]
+  },
+  "brandColor": "#c9252b",
+  "flow": {
+    "actions": [
+      {
+        "title": {
+          "en": "Boost hot water",
+          "sv": "Forcera varmvatten"
+        },
+        "titleFormatted": {
+          "en": "Boost hot water for [[duration]]",
+          "sv": "Forcera varmvatten i [[duration]]"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=heatpump"
+          },
+          {
+            "type": "dropdown",
+            "name": "duration",
+            "title": {
+              "en": "Duration",
+              "sv": "Varaktighet"
+            },
+            "values": [
+              {
+                "id": "0",
+                "title": {
+                  "en": "Off",
+                  "sv": "Av"
+                }
+              },
+              {
+                "id": "2",
+                "title": {
+                  "en": "One-time increase",
+                  "sv": "Engångshöjning"
+                }
+              },
+              {
+                "id": "3",
+                "title": {
+                  "en": "3 hours",
+                  "sv": "3 timmar"
+                }
+              },
+              {
+                "id": "6",
+                "title": {
+                  "en": "6 hours",
+                  "sv": "6 timmar"
+                }
+              },
+              {
+                "id": "12",
+                "title": {
+                  "en": "12 hours",
+                  "sv": "12 timmar"
+                }
+              },
+              {
+                "id": "24",
+                "title": {
+                  "en": "24 hours",
+                  "sv": "24 timmar"
+                }
+              },
+              {
+                "id": "48",
+                "title": {
+                  "en": "48 hours",
+                  "sv": "48 timmar"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "boost_hot_water"
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "Nibe Heat Pump",
+        "sv": "Nibe Värmepump"
+      },
+      "class": "heatpump",
+      "energy": {
+        "cumulative": true,
+        "cumulativeImportedCapability": "meter_power"
+      },
+      "capabilities": [
+        "measure_temperature",
+        "measure_temperature.outdoor",
+        "measure_temperature.hotwater",
+        "measure_temperature.supply",
+        "measure_power",
+        "measure_power.heating",
+        "measure_power.hotwater",
+        "meter_power",
+        "target_temperature",
+        "hot_water_boost",
+        "ventilation_boost",
+        "ventilation_mode"
+      ],
+      "capabilitiesOptions": {
+        "measure_temperature": {
+          "title": {
+            "en": "Indoor",
+            "sv": "Inomhus"
+          }
+        },
+        "measure_temperature.outdoor": {
+          "title": {
+            "en": "Outdoor",
+            "sv": "Utomhus"
+          }
+        },
+        "measure_temperature.hotwater": {
+          "title": {
+            "en": "Hot water",
+            "sv": "Varmvatten"
+          }
+        },
+        "measure_temperature.supply": {
+          "title": {
+            "en": "Supply",
+            "sv": "Tillopp"
+          }
+        },
+        "measure_power.heating": {
+          "title": {
+            "en": "Power (heating)",
+            "sv": "Effekt (värme)"
+          }
+        },
+        "measure_power.hotwater": {
+          "title": {
+            "en": "Power (hot water)",
+            "sv": "Effekt (varmvatten)"
+          }
+        },
+        "meter_power": {
+          "title": {
+            "en": "Total consumption",
+            "sv": "Total förbrukning"
+          }
+        },
+        "target_temperature": {
+          "title": {
+            "en": "Indoor",
+            "sv": "Inomhus"
+          },
+          "min": 5,
+          "max": 35,
+          "step": 0.5,
+          "units": {
+            "en": "°C"
+          }
+        }
+      },
+      "images": {
+        "small": "/drivers/heatpump/assets/images/small.png",
+        "large": "/drivers/heatpump/assets/images/large.png",
+        "xlarge": "/drivers/heatpump/assets/images/xlarge.png"
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "cloud"
+      ],
+      "pair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        },
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ],
+      "repair": [
+        {
+          "id": "login_oauth2",
+          "template": "login_oauth2"
+        }
+      ],
+      "id": "heatpump"
+    }
+  ],
+  "capabilities": {
+    "hot_water_boost": {
+      "type": "boolean",
+      "title": {
+        "en": "Hot water boost",
+        "sv": "Extra varmvatten"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "insights": false
+    },
+    "ventilation_boost": {
+      "type": "boolean",
+      "title": {
+        "en": "Ventilation boost",
+        "sv": "Forcerad ventilation"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "toggle",
+      "insights": false
+    },
+    "ventilation_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Ventilation mode",
+        "sv": "Ventilationsläge"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "insights": false,
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "Normal",
+            "sv": "Normal"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Speed 1",
+            "sv": "Hastighet 1"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Speed 2",
+            "sv": "Hastighet 2"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Speed 3",
+            "sv": "Hastighet 3"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Speed 4",
+            "sv": "Hastighet 4"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "settings": {
+    "debugLogging": {
+      "label": "Enable debug logging",
+      "hint": "Logs token refresh decisions, poll results, and API details to the Homey app log."
+    }
+  },
+  "device": {
+    "unavailable": "myUplink unreachable — check your connection or re-pair.",
+    "write_forbidden": "No write access — re-pair this device to allow changing settings.",
+    "write_premium": "This control requires a myUplink Premium subscription."
+  }
+}

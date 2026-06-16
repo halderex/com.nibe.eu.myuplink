@@ -1,0 +1,13 @@
+{
+  "name": "project-skills",
+  "plugins": [
+    {
+      "name": "homey-app",
+      "source": "./homey-app",
+      "description": "Homey Apps SDK v3 skill — scaffold, debug, and publish Homey apps"
+    }
+  ],
+  "owner": {
+    "name": "Henrik Aldermo"
+  }
+}

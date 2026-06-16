@@ -1,0 +1,28 @@
+{
+  "title": { "en": "Boost hot water", "sv": "Forcera varmvatten" },
+  "titleFormatted": {
+    "en": "Boost hot water for [[duration]]",
+    "sv": "Forcera varmvatten i [[duration]]"
+  },
+  "args": [
+    {
+      "type": "device",
+      "name": "device",
+      "filter": "driver_id=heatpump"
+    },
+    {
+      "type": "dropdown",
+      "name": "duration",
+      "title": { "en": "Duration", "sv": "Varaktighet" },
+      "values": [
+        { "id": "0", "title": { "en": "Off", "sv": "Av" } },
+        { "id": "2", "title": { "en": "One-time increase", "sv": "Engångshöjning" } },
+        { "id": "3", "title": { "en": "3 hours", "sv": "3 timmar" } },
+        { "id": "6", "title": { "en": "6 hours", "sv": "6 timmar" } },
+        { "id": "12", "title": { "en": "12 hours", "sv": "12 timmar" } },
+        { "id": "24", "title": { "en": "24 hours", "sv": "24 timmar" } },
+        { "id": "48", "title": { "en": "48 hours", "sv": "48 timmar" } }
+      ]
+    }
+  ]
+}

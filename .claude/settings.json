@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "project-skills": {
+      "source": {
+        "source": "directory",
+        "path": ".agents/skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "homey-app@project-skills": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "homey-app": {
+      "source": "dvflw/homey-app-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "a9f04d958d4f600a75c6877459e9ec80014ef94518cd22318678074734d275a1"
+    }
+  }
+}

@@ -1,0 +1,3 @@
+# Python dev/probe tooling — not part of the Node app bundle.
+*.py
+scripts/

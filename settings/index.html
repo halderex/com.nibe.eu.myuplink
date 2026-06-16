@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 16px; color: #333; }
+    .row { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    label { cursor: pointer; font-size: 1em; }
+    .hint { color: #888; font-size: 0.82em; margin: 0 0 0 34px; }
+    input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <input type="checkbox" id="debugLogging">
+    <label for="debugLogging" id="labelDebugLogging"></label>
+  </div>
+  <p class="hint" id="hintDebugLogging"></p>
+
+  <script>
+    async function onHomeyReady(Homey) {
+      document.getElementById('labelDebugLogging').textContent = Homey.__('settings.debugLogging.label');
+      document.getElementById('hintDebugLogging').textContent = Homey.__('settings.debugLogging.hint');
+
+      const value = await Homey.get('debugLogging');
+      document.getElementById('debugLogging').checked = !!value;
+
+      document.getElementById('debugLogging').addEventListener('change', async function (e) {
+        try {
+          await Homey.set('debugLogging', e.target.checked);
+        } catch (err) {
+          Homey.alert(err.message || String(err));
+        }
+      });
+
+      Homey.ready();
+    }
+  </script>
+</body>
+</html>

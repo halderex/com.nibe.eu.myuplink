@@ -1,0 +1,42 @@
+{
+  "id": "com.nibe.eu.myuplink",
+  "version": "0.1.0",
+  "compatibility": ">=13.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Nibe HP Energy",
+    "sv": "Nibe VP Energy"
+  },
+  "description": {
+    "en": "Integrate your Nibe Heat Pump in Homey Energy",
+    "sv": "Integrera din Nibe värmepump i Homey Energy"
+  },
+  "category": [
+    "energy"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Henrik Aldermo",
+    "email": "henrik.aldermo@outlook.com"
+  },
+  "source": "https://github.com/halderex/com.nibe.eu.myuplink",
+  "bugs": {
+    "url": "https://github.com/halderex/com.nibe.eu.myuplink/issues"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Henrik Aldermo"
+      }
+    ]
+  },
+  "brandColor": "#c9252b"
+}

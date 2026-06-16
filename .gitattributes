@@ -1,0 +1,2 @@
+# Ship the bundled CA store byte-for-byte (no line-ending conversion).
+*.pem binary

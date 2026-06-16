@@ -1,0 +1,15 @@
+{
+  "type": "enum",
+  "title": { "en": "Ventilation mode", "sv": "Ventilationsläge" },
+  "getable": true,
+  "setable": true,
+  "uiComponent": "picker",
+  "insights": false,
+  "values": [
+    { "id": "0", "title": { "en": "Normal", "sv": "Normal" } },
+    { "id": "1", "title": { "en": "Speed 1", "sv": "Hastighet 1" } },
+    { "id": "2", "title": { "en": "Speed 2", "sv": "Hastighet 2" } },
+    { "id": "3", "title": { "en": "Speed 3", "sv": "Hastighet 3" } },
+    { "id": "4", "title": { "en": "Speed 4", "sv": "Hastighet 4" } }
+  ]
+}
