@@ -180,8 +180,11 @@ and Hot-water devices): the pump exposes only a single live power reading (**221
 real cumulative meter (**28393**, kWh) — no per-category breakdown. Each pump is paired as **two
 Homey consumer devices** (`data.role` = `heating` / `hotwater`) so Homey Energy can cost them
 separately; `device.js` derives each device's energy from the operating priority **14950**
-(`{0=Off, 1=Heating, 2=Cooling, 3=Hot water, 4=Pool, 5=Pool 2, 6=Pre-heating}`): heating counts
-priority ∈ {1, 6}, hot water counts priority = 3.
+(`{0=Off, 1=Heating, 2=Cooling, 3=Hot water, 4=Pool, 5=Pool 2, 6=Pre-heating}`): hot water counts
+priority = 3, and **heating counts everything else** — heating/pre-heating *and* Off/standby. The
+heating role is deliberately the complement of hot water so the two always sum to 100%: the
+pump's continuous base load (the S735's exhaust-air ventilation fan, circulation pumps and
+electronics run even at priority Off) is attributed to heating rather than dropped.
 
 - **Live power** (`measure_power`): a 1-minute poll (`FAST_POLL_INTERVAL_MS`, fetched via
   `?parameters=22130,14950`) sets each device's `measure_power` to 22130 when the pump is serving
@@ -191,6 +194,7 @@ priority ∈ {1, 6}, hot water counts priority = 3.
   the last poll to the device's category, weighted by that device's power-integration share of the
   window. This reconciles the two meters with the pump's true total and is more accurate than
   Homey's approximation; the flat per-category kWh counters (25137/25138) refresh only every
-  ~20–30 min and are too coarse. Energy spent in other priorities (standby/cooling) is attributed
-  to neither, so heating + hot water ≤ pump total. The accumulated kWh and last meter reading are
-  persisted to the device store so `meter_power` stays monotonic across restarts.
+  ~20–30 min and are too coarse. Because heating is the complement of hot water, the two shares
+  sum to 1, so heating + hot water = the pump's full consumption (idle/standby included). The
+  accumulated kWh and last meter reading are persisted to the device store so `meter_power` stays
+  monotonic across restarts.

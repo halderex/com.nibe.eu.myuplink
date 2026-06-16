@@ -47,14 +47,21 @@ const PREMIUM_GATED_CAPABILITIES = {
   ventilation_mode: 'setVentilationMode',
 };
 
+// Operating priority (param 14950): {0=Off, 1=Heating, 2=Cooling, 3=Hot water, 4=Pool,
+// 5=Pool 2, 6=Pre-heating}. Only "3" is hot water; everything else (heating, pre-heating, and —
+// crucially — Off/standby) is non-production base load: on an exhaust-air S735 the ventilation
+// fan, circulation pumps and electronics draw power 24/7.
+const HOTWATER_PRIORITIES = new Set([3]);
+
 // Each pump is paired as two consumer devices distinguished by data.role, so Homey Energy can
 // cost heating and hot water separately. Each role gets a focused capability set, its own device
-// class, and the operating priorities (param 14950) that count as "its" consumption.
-//   priorities: {0=Off, 1=Heating, 2=Cooling, 3=Hot water, 4=Pool, 5=Pool 2, 6=Pre-heating}
+// class, and a `matches(priority)` predicate selecting the power that counts as "its" consumption.
+// Heating deliberately matches the COMPLEMENT of hot water (incl. idle/standby), so the two shares
+// always sum to 1 — the meters then reconcile to the pump's true total and nothing is dropped.
 const ROLES = {
   heating: {
     class: 'heatpump',
-    priorities: new Set([1, 6]), // Heating + Pre-heating
+    matches: (priority) => !HOTWATER_PRIORITIES.has(priority), // heating + base/idle load
     capabilities: [
       'measure_temperature',
       'measure_temperature.outdoor',
@@ -68,7 +75,7 @@ const ROLES = {
   },
   hotwater: {
     class: 'boiler',
-    priorities: new Set([3]), // Hot water
+    matches: (priority) => HOTWATER_PRIORITIES.has(priority),
     capabilities: [
       'measure_temperature.hotwater',
       'measure_power',
@@ -124,7 +131,7 @@ class NibeDevice extends OAuth2Device {
     this._powerIntervalId = null;
 
     this._role = ROLES[this.getData().role] ? this.getData().role : 'heating';
-    this._priorities = ROLES[this._role].priorities;
+    this._matches = ROLES[this._role].matches;
     // Power integrated (Wh) over the current meter window: total across the pump, and the part
     // spent serving this device's category — their ratio splits the real meter delta.
     this._catWh = 0;
@@ -280,7 +287,7 @@ class NibeDevice extends OAuth2Device {
       if (delta > 0 && delta < SANE_MAX_DELTA_KWH) {
         const share = this._totWh > 0
           ? this._catWh / this._totWh
-          : (this._priorities.has(this._lastPriority) ? 1 : 0);
+          : (this._matches(this._lastPriority) ? 1 : 0);
         meterKwh += delta * share;
         await this.setStoreValue('meterKwh', meterKwh);
         if (this.hasCapability('meter_power')) await this.setCapabilityValue('meter_power', meterKwh);
@@ -325,7 +332,7 @@ class NibeDevice extends OAuth2Device {
       const priority = priorityVal === null ? null : Math.trunc(priorityVal);
       this._lastPriority = priority;
 
-      const inCategory = this._priorities.has(priority);
+      const inCategory = this._matches(priority);
       if (dtH > 0 && dtH < MAX_INTEGRATION_HOURS) {
         this._totWh += power * dtH;
         if (inCategory) this._catWh += power * dtH;
