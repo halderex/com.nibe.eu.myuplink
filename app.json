@@ -169,7 +169,8 @@
           "title": {
             "en": "Consumption",
             "sv": "Förbrukning"
-          }
+          },
+          "decimals": 3
         },
         "target_temperature": {
           "title": {

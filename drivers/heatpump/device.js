@@ -138,6 +138,11 @@ class NibeDevice extends OAuth2Device {
     this._totWh = 0;
     this._lastPriority = null;
     this._lastFastTs = Date.now();
+    // meter_power is driven smoothly by integrating live power each minute, then anchored to the
+    // real meter (28393) at the 5-min poll. Mirror the persisted value in memory to avoid a store
+    // read every minute.
+    const stored = this.getStoreValue('meterKwh');
+    this._meterKwh = typeof stored === 'number' ? stored : 0;
 
     try {
       const cls = ROLES[this._role].class;
@@ -151,9 +156,8 @@ class NibeDevice extends OAuth2Device {
     await this._syncCapabilities(await this._fetchFeatures());
 
     // Restore the accumulated meter so meter_power stays monotonic across restarts.
-    const meterKwh = this.getStoreValue('meterKwh');
-    if (typeof meterKwh === 'number' && this.hasCapability('meter_power')) {
-      await this.setCapabilityValue('meter_power', meterKwh).catch(() => {});
+    if (this.hasCapability('meter_power')) {
+      await this.setCapabilityValue('meter_power', this._meterKwh).catch(() => {});
     }
 
     // Map each writable capability back to its parameter for the set listeners.
@@ -269,18 +273,20 @@ class NibeDevice extends OAuth2Device {
   }
 
   /**
-   * Attribute the real cumulative meter's (28393) increase since the last poll to this device's
-   * category, splitting it by the share of pump energy spent serving that category during the
-   * window (power-weighted via the fast poll). Keeps meter_power accurate and reconciled with the
-   * pump's true total.
+   * Anchor meter_power to the real cumulative meter (28393). The minute-by-minute value is driven
+   * by power integration (see `_pollPower`) for smooth, sub-kWh increments; here we attribute the
+   * real meter's increase since the last poll to this device's category (power-weighted share) and
+   * pull the smooth meter *up* to that accurate total if integration lagged — e.g. electric
+   * additional heat that shows in 28393 but not in the 22130 power reading. Never decreases, so
+   * meter_power stays monotonic and reconciled with the pump's billed total.
    */
   async _accumulateMeter(totalPoint) {
     const total = MyUplinkOAuth2Client.pointValue(totalPoint);
     if (total === null) return;
 
     const last = this.getStoreValue('lastTotal');
-    let meterKwh = this.getStoreValue('meterKwh');
-    if (typeof meterKwh !== 'number') meterKwh = 0;
+    let trueKwh = this.getStoreValue('trueKwh');
+    if (typeof trueKwh !== 'number') trueKwh = this._meterKwh; // seed from the smooth meter
 
     if (typeof last === 'number') {
       const delta = total - last;
@@ -288,30 +294,30 @@ class NibeDevice extends OAuth2Device {
         const share = this._totWh > 0
           ? this._catWh / this._totWh
           : (this._matches(this._lastPriority) ? 1 : 0);
-        meterKwh += delta * share;
-        await this.setStoreValue('meterKwh', meterKwh);
-        if (this.hasCapability('meter_power')) await this.setCapabilityValue('meter_power', meterKwh);
-        this._logDebug(`Meter: Δ=${delta.toFixed(3)}kWh share=${share.toFixed(3)} -> ${meterKwh.toFixed(3)}kWh`);
+        trueKwh += delta * share;
+        await this.setStoreValue('trueKwh', trueKwh);
+        if (trueKwh > this._meterKwh) {
+          this._meterKwh = trueKwh;
+          await this.setStoreValue('meterKwh', this._meterKwh);
+          if (this.hasCapability('meter_power')) await this.setCapabilityValue('meter_power', this._meterKwh);
+        }
+        this._logDebug(`Meter anchor: Δ=${delta.toFixed(3)}kWh share=${share.toFixed(3)} true=${trueKwh.toFixed(3)} meter=${this._meterKwh.toFixed(3)}kWh`);
       } else if (delta !== 0) {
         this._logDebug(`Meter: ignoring delta ${delta} (reset/rollover/gap), re-baselining`);
       }
-    } else if (this.hasCapability('meter_power') && this.getCapabilityValue('meter_power') === null) {
-      // First reading on a new device — establish the baseline and seed meter_power so Homey
-      // registers it as a meter right away (the first real delta lands on the next poll).
-      await this.setStoreValue('meterKwh', meterKwh);
-      await this.setCapabilityValue('meter_power', meterKwh);
     }
 
     await this.setStoreValue('lastTotal', total);
-    // Reset the window so the next delta is split by fresh power integration.
+    // Reset the window so the next anchor is split by fresh power integration.
     this._catWh = 0;
     this._totWh = 0;
   }
 
   /**
    * Fast poll: set this device's live measure_power to the pump's power when it's serving this
-   * category (else 0), and integrate power over elapsed time into the window accumulators that
-   * weight the meter split.
+   * category (else 0), integrate power over elapsed time into the window accumulators that weight
+   * the meter split, and grow meter_power smoothly by the category's energy this interval (the
+   * coarse 28393 meter only steps in whole kWh, so this is what gives sub-kWh resolution).
    */
   async _pollPower() {
     try {
@@ -335,12 +341,17 @@ class NibeDevice extends OAuth2Device {
       const inCategory = this._matches(priority);
       if (dtH > 0 && dtH < MAX_INTEGRATION_HOURS) {
         this._totWh += power * dtH;
-        if (inCategory) this._catWh += power * dtH;
+        if (inCategory) {
+          this._catWh += power * dtH;
+          this._meterKwh += (power * dtH) / 1000;
+          await this.setStoreValue('meterKwh', this._meterKwh);
+          if (this.hasCapability('meter_power')) await this.setCapabilityValue('meter_power', this._meterKwh);
+        }
       }
 
       const live = inCategory ? power : 0.0;
       if (this.hasCapability('measure_power')) await this.setCapabilityValue('measure_power', live);
-      this._logDebug(`Power poll: total=${power}W priority=${priority} inCategory=${inCategory} -> ${live}W`);
+      this._logDebug(`Power poll: total=${power}W priority=${priority} inCategory=${inCategory} -> ${live}W meter=${this._meterKwh.toFixed(3)}kWh`);
     } catch (err) {
       // Don't flip availability on a transient power-poll error — the main poll owns that.
       this.error(`Power poll failed: ${err}`);

@@ -30,7 +30,8 @@
       "title": { "en": "Supply", "sv": "Tillopp" }
     },
     "meter_power": {
-      "title": { "en": "Consumption", "sv": "Förbrukning" }
+      "title": { "en": "Consumption", "sv": "Förbrukning" },
+      "decimals": 3
     },
     "target_temperature": {
       "title": { "en": "Indoor", "sv": "Inomhus" },

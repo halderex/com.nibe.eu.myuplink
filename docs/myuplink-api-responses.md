@@ -190,11 +190,14 @@ electronics run even at priority Off) is attributed to heating rather than dropp
   `?parameters=22130,14950`) sets each device's `measure_power` to 22130 when the pump is serving
   that device's category, else 0. It also integrates 22130 over elapsed time into per-window
   accumulators (total vs this category).
-- **Energy** (`meter_power`): the 5-minute main poll reads 28393 and attributes its increase since
-  the last poll to the device's category, weighted by that device's power-integration share of the
-  window. This reconciles the two meters with the pump's true total and is more accurate than
-  Homey's approximation; the flat per-category kWh counters (25137/25138) refresh only every
-  ~20–30 min and are too coarse. Because heating is the complement of hot water, the two shares
-  sum to 1, so heating + hot water = the pump's full consumption (idle/standby included). The
-  accumulated kWh and last meter reading are persisted to the device store so `meter_power` stays
-  monotonic across restarts.
+- **Energy** (`meter_power`): grown **smoothly** by the 1-minute poll — each interval adds the
+  category's integrated power (`power × dt`) in kWh, giving sub-kWh resolution. The real meter
+  **28393 only steps in whole kWh**, so relying on its delta alone produced useless 1 kWh
+  stairsteps; instead the 5-minute poll uses 28393 as an **anchor**: it attributes 28393's
+  increase to the device's category (power-weighted share — heating is the complement of hot
+  water, so the two shares sum to 1 and cover the pump's full consumption incl. idle/standby) into
+  a `trueKwh` total, and pulls `meter_power` *up* to it if the power integration lagged (e.g.
+  electric additional heat that shows in 28393 but not in 22130). It never decreases, so
+  `meter_power` stays monotonic and reconciled with the pump's billed total. `meterKwh`, `trueKwh`
+  and the last 28393 reading are persisted to the device store across restarts. The flat
+  per-category kWh counters (25137/25138) refresh only every ~20–30 min and are too coarse to use.

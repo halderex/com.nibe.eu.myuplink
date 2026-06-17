@@ -110,9 +110,12 @@ store).
   flag — that flag mis-classified the device as a whole-home meter, which is why it never appeared
   as a consumer). Per-category energy is derived, not read directly: a 1-min poll
   (`FAST_POLL_INTERVAL_MS`) sets `measure_power` to live power (22130) when the pump's operating
-  priority (14950) matches the role and integrates it into a window accumulator; the 5-min poll
-  splits the real cumulative meter's (28393) per-window increase into the role's `meter_power` by
-  that power-weighted share (persisted to the store so `meter_power` stays monotonic). Writable
+  priority (14950) matches the role. `meter_power` is grown **smoothly** by integrating that live
+  power each minute (sub-kWh steps — the real meter 28393 only reports whole kWh); the 5-min poll
+  then **anchors** it to 28393, attributing the meter's per-window increase to the role by the
+  power-weighted share (heating is the complement of hot water, so the shares sum to 1) and pulling
+  `meter_power` up to that true total if integration lagged (e.g. additional electric heat). Values
+  are persisted to the store so `meter_power` stays monotonic and reconciled across restarts. Writable
   controls (target temperature, hot-water/ventilation boost, ventilation mode) plus the
   `boost_hot_water` Flow action need a `WRITESYSTEM` token; a 403 surfaces a "re-pair" (or Premium)
   warning.
