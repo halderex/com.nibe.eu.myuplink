@@ -1,4 +1,8 @@
 {
+  "0.9.0": {
+    "en": "Adds live readings and controls: indoor/outdoor/supply/return temperatures, hot-water temperature, compressor frequency, pump speed, airflow and run times, plus indoor target temperature, hot-water boost and (on supported pumps) ventilation boost and mode, and a Boost hot water Flow action.",
+    "sv": "Lägger till liveavläsningar och styrning: inomhus-/utomhus-/framlednings-/returtemperaturer, varmvattentemperatur, kompressorfrekvens, pumphastighet, luftflöde och drifttider, samt inomhus måltemperatur, varmvattenboost och (på pumpar som stöder det) ventilationsboost och -läge, plus en Flow-åtgärd för att boosta varmvatten."
+  },
   "1.0.0": {
     "en": "First version!"
   },
