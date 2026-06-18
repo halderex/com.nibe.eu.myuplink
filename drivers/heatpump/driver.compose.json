@@ -39,7 +39,7 @@
       "decimals": 3
     },
     "target_temperature": {
-      "title": { "en": "Indoor", "sv": "Inomhus" },
+      "title": { "en": "Indoor", "sv": "Måltemperatur" },
       "min": 5,
       "max": 35,
       "step": 0.5,

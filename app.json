@@ -183,7 +183,7 @@
         "target_temperature": {
           "title": {
             "en": "Indoor",
-            "sv": "Inomhus"
+            "sv": "Måltemperatur"
           },
           "min": 5,
           "max": 35,
