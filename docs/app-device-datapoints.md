@@ -17,21 +17,25 @@ note in `CLAUDE.md`). For the full list of *available* myUplink points (mapped o
 
 ## 🔥 Heating device (class `heatpump`, icon `assets/heating.svg`)
 
+Listed in device-page (gauge) order — see the `capabilities` array order in
+`driver.compose.json`. (Read-only sensors render in this order; interactive controls render in a
+separate area.)
+
 | Capability | Param | Title (en / sv) | Unit | Writable | Notes |
 |---|---|---|---|---|---|
 | `measure_temperature` | 48351 | Indoor / Inomhus | °C | | Climate system 1 |
-| `measure_temperature.outdoor` | 4 | Outdoor / Utomhus | °C | | BT1 |
+| `target_temperature` | 47751 | Indoor / Måltemperatur | °C | ✓ | room setpoint (control) |
+| `operating_priority` | 55000 | Priority / Prioritet | enum | | custom, info |
+| `compressor_frequency` | 5927 | Compressor frequency / Kompressorfrekvens | Hz | | custom, info |
 | `measure_temperature.supply` | 8 | Supply / Framledning | °C | | BT2 |
 | `measure_temperature.return` | 10 | Return / Returledning | °C | | BT3 |
 | `measure_temperature.calculated_supply` | 1708 | Calculated supply / Beräknad framledning | °C | | |
-| `target_temperature` | 47751 | Indoor / Måltemperatur | °C | ✓ | room setpoint |
+| `measure_temperature.outdoor` | 4 | Outdoor / Utomhus | °C | | BT1 |
+| `pump_speed` | 1975 | Pump speed / Pumphastighet | % | | custom, info (GP1) |
+| `airflow` | 26945 | Airflow / Luftflöde | m³/h | | custom, info (BP16) |
 | `measure_power` | 22130 + 14950 | — | W | | derived (non-hot-water power) |
 | `meter_power` | 28393 / 22130 | Consumption / Förbrukning | kWh | | derived, 3 decimals |
 | `additional_heat_power` | 1756 | Additional heat power / Tillsatseffekt | kW | | custom, info |
-| `operating_priority` | 55000 | Priority / Prioritet | enum | | custom, info |
-| `compressor_frequency` | 5927 | Compressor frequency / Kompressorfrekvens | Hz | | custom, info |
-| `pump_speed` | 1975 | Pump speed / Pumphastighet | % | | custom, info (GP1) |
-| `airflow` | 26945 | Airflow / Luftflöde | m³/h | | custom, info (BP16) |
 | `add_heat_time_heating` | 26411 | Add. heat time (heating) / Tillsats drifttid (värme) | h | | custom, info |
 | `ventilation_boost` | 8121 | (capability) | | ✓ | **Premium** |
 | `ventilation_mode` | 3830 | (capability) | | ✓ | **Premium** |
