@@ -17,27 +17,35 @@ note in `CLAUDE.md`). For the full list of *available* myUplink points (mapped o
 
 ## 🔥 Heating device (class `heatpump`, icon `assets/heating.svg`)
 
-| Capability | Param | Title (en / sv) | Writable | Notes |
-|---|---|---|---|---|
-| `measure_temperature` | 48351 | Indoor / Inomhus | | Climate system 1 |
-| `measure_temperature.outdoor` | 4 | Outdoor / Utomhus | | BT1 |
-| `measure_temperature.supply` | 8 | Supply / Framledning | | BT2 |
-| `measure_temperature.return` | 10 | Return / Returledning | | BT3 |
-| `measure_power` | 22130 + 14950 | — | | derived (non-hot-water power) |
-| `meter_power` | 28393 / 22130 | Consumption / Förbrukning | | derived, 3 decimals |
-| `target_temperature` | 47751 | Indoor / Måltemperatur | ✓ | room setpoint |
-| `ventilation_boost` | 8121 | (capability) | ✓ | **Premium** |
-| `ventilation_mode` | 3830 | (capability) | ✓ | **Premium** |
+| Capability | Param | Title (en / sv) | Unit | Writable | Notes |
+|---|---|---|---|---|---|
+| `measure_temperature` | 48351 | Indoor / Inomhus | °C | | Climate system 1 |
+| `measure_temperature.outdoor` | 4 | Outdoor / Utomhus | °C | | BT1 |
+| `measure_temperature.supply` | 8 | Supply / Framledning | °C | | BT2 |
+| `measure_temperature.return` | 10 | Return / Returledning | °C | | BT3 |
+| `measure_temperature.calculated_supply` | 1708 | Calculated supply / Beräknad framledning | °C | | |
+| `target_temperature` | 47751 | Indoor / Måltemperatur | °C | ✓ | room setpoint |
+| `measure_power` | 22130 + 14950 | — | W | | derived (non-hot-water power) |
+| `meter_power` | 28393 / 22130 | Consumption / Förbrukning | kWh | | derived, 3 decimals |
+| `additional_heat_power` | 1756 | Additional heat power / Tillsatseffekt | kW | | custom, info |
+| `operating_priority` | 55000 | Priority / Prioritet | enum | | custom, info |
+| `compressor_frequency` | 5927 | Compressor frequency / Kompressorfrekvens | Hz | | custom, info |
+| `pump_speed` | 1975 | Pump speed / Pumphastighet | % | | custom, info (GP1) |
+| `airflow` | 26945 | Airflow / Luftflöde | m³/h | | custom, info (BP16) |
+| `add_heat_time_heating` | 26411 | Add. heat time (heating) / Tillsats drifttid (värme) | h | | custom, info |
+| `ventilation_boost` | 8121 | (capability) | | ✓ | **Premium** |
+| `ventilation_mode` | 3830 | (capability) | | ✓ | **Premium** |
 
 ## 💧 Hot-water device (class `boiler`, icon `assets/hotwater.svg`)
 
-| Capability | Param | Title (en / sv) | Writable | Notes |
-|---|---|---|---|---|
-| `measure_temperature.hotwater` | 32628 | Hot water / Varmvatten | | |
-| `hotwater_amount` | 29972 | Hot water amount / Varmvattenmängd | | custom capability, min |
-| `measure_power` | 22130 + 14950 | — | | derived (priority 3 power) |
-| `meter_power` | 28393 / 22130 | Consumption / Förbrukning | | derived, 3 decimals |
-| `hot_water_boost` | 7086 | (capability) | ✓ | **Premium** |
+| Capability | Param | Title (en / sv) | Unit | Writable | Notes |
+|---|---|---|---|---|---|
+| `measure_temperature.hotwater` | 32628 | Hot water / Varmvatten | °C | | |
+| `hotwater_amount` | 29972 | Hot water amount / Varmvattenmängd | min | | custom, info |
+| `measure_power` | 22130 + 14950 | — | W | | derived (priority 3 power) |
+| `meter_power` | 28393 / 22130 | Consumption / Förbrukning | kWh | | derived, 3 decimals |
+| `add_heat_time_hotwater` | 1865 | Add. heat time (hot water) / Tillsats drifttid (varmvatten) | h | | custom, info |
+| `hot_water_boost` | 7086 | (capability) | | ✓ | **Premium** |
 
 Plus the **Boost hot water** Flow action (param 4564) — filtered to devices with `hot_water_boost`,
 i.e. the hot-water device.

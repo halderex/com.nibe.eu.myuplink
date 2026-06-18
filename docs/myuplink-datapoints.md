@@ -28,21 +28,21 @@ Captured live from a Nibe **S735-4 CU EM 3x400V** via `GET /v2/devices/{id}/poin
 | 94 | Low press (BP8) | bar | number |  | 4.5bar |  | 0.01 |  |  |  |
 | 605 | Total op. time compr. cooling | h | number |  | 0h | 0–2147483647 /1 | 1 |  |  |  |
 | 781 | Degree minutes | DM | number | ✓ | 100DM | -30000–30000 /20 | 0.1 |  |  |  |
-| 1708 | Calculated supply climate system 1 | °C | number |  | 20.4°C |  | 0.1 |  |  | sh-supplyTemp |
+| 1708 | Calculated supply climate system 1 | °C | number |  | 20.4°C |  | 0.1 | measure_temperature.calculated_supply |  | sh-supplyTemp |
 | 1755 | Total run time additional heat | h | number | ✓ | 7.5h | 0–1000000 /1 | 0.1 |  |  |  |
-| 1756 | Power internal additional heat | kW | number |  | 0kW |  | 0.01 |  |  |  |
-| 1865 | Op. time el. add. heat for hot water | h | number |  | 1.7h | 0–9999999 /1 | 0.1 |  |  |  |
+| 1756 | Power internal additional heat | kW | number |  | 0kW |  | 0.01 | additional_heat_power |  |  |
+| 1865 | Op. time el. add. heat for hot water | h | number |  | 1.7h | 0–9999999 /1 | 0.1 | add_heat_time_hotwater |  |  |
 | 1959 | Compressor starter |  | number |  | 1789 | -2147483648–2147483647 /1 | 1 |  |  |  |
 | 1961 | Total run time compressor | h | number |  | 4607h | -2147483648–2147483647 /1 | 1 |  |  |  |
 | 1963 | Total run time compressor hot water | h | number |  | 1194h | -2147483648–2147483647 /1 | 1 |  |  |  |
 | 1965 | Operating mode compressor |  | enum |  | On |  | 1 |  | 20=Off, 40=Starting, 60=On, 100=Stopping, 120=Defrosting, 140=Defrosting, 160=Defrosting |  |
-| 1975 | Heating medium pump speed (GP1) | % | number |  | 1% |  | 1 |  |  |  |
+| 1975 | Heating medium pump speed (GP1) | % | number |  | 1% |  | 1 | pump_speed |  |  |
 | 3830 | Ventilation mode |  | enum | ✓ | Normal (64%) | 0–4 /1 | 1 | ventilation_mode (W) | 0=Normal (64%), 1=Hastighet 1 (0%), 2=Hastighet 2 (30%), 3=Hastighet 3 (80%), 4=Hastighet 4 (100%) |  |
 | 4040 | Night cooling 1 |  | enum/bool | ✓ | On | 0–1 /1 | 1 |  | 0=Off, 1=On |  |
 | 4041 | Start temperature night cooling 1 | °C | number | ✓ | 25°C | 20–30 /1 | 1 |  |  |  |
 | 4564 | More hot water |  | enum | ✓ | Off |  | 1 |  | 0=Off, 2=One-time incr., 3=3 hours, 6=6 hours, 12=12 hours, 24=24 hours, 48=48 hours |  |
 | 4789 | Activated (Smart Price Adaption) |  | number | ✓ | 1 | 0–1 /1 | 1 |  |  |  |
-| 5927 | Current compressor frequency | Hz | number |  | 25Hz |  | 1 |  |  |  |
+| 5927 | Current compressor frequency | Hz | number |  | 25Hz |  | 1 | compressor_frequency |  |  |
 | 5952 | Exhaust air fan speed (GQ2) | % | number |  | 65% |  | 1 |  |  |  |
 | 6994 | Hi press (BP9) | bar | number |  | 12.5bar |  | 0.01 |  |  |  |
 | 7086 | More hot water |  | enum/bool | ✓ | Off |  | 1 | hot_water_boost (W) | 0=Off, 1=On | sh-hwBoost |
@@ -67,8 +67,8 @@ Captured live from a Nibe **S735-4 CU EM 3x400V** via `GET /v2/devices/{id}/poin
 | 25162 | Energy log - Used energy by additional heater for heating over the past hour | kWh | number |  | 0kWh |  | 0.01 |  |  |  |
 | 25163 | Energy log - Used energy by additional heater for hot water over the past hour | kWh | number |  | 0kWh |  | 0.01 |  |  |  |
 | 25165 | Energy log - Current power consumption | kW | number |  | 0.43kW |  | 0.01 |  |  |  |
-| 26411 | Op. time el. add. heat for heating | h | number |  | 5.8h | 0–9999999 /1 | 0.1 |  |  |  |
-| 26945 | Airflow (BP16) | m³/h | number |  | 145.2m³/h |  | 0.1 |  |  |  |
+| 26411 | Op. time el. add. heat for heating | h | number |  | 5.8h | 0–9999999 /1 | 0.1 | add_heat_time_heating |  |  |
+| 26945 | Airflow (BP16) | m³/h | number |  | 145.2m³/h |  | 0.1 | airflow |  |  |
 | 27233 | Rapid water heating |  | enum/bool | ✓ | Off |  | 1 |  | 0=Off, 1=On |  |
 | 27335 | System power consumption | kW | number |  | 0.4kW |  | 0.01 |  |  |  |
 | 27378 | Heating, compressor only | kWh | number |  | 6842.9kWh |  | 0.1 |  |  | sh-energyMetered |
@@ -89,5 +89,5 @@ Captured live from a Nibe **S735-4 CU EM 3x400V** via `GET /v2/devices/{id}/poin
 | 47751 | Rumsgivare börvärde: Klimatsystem 1 | °C | number | ✓ | 22°C | 50–350 /5 | 0.1 | target_temperature (W) |  | sh-indoorSpHeat |
 | 48351 | Temperatur: Klimatsystem 1 | °C | number |  | 22.9°C |  | 0.1 | measure_temperature |  | sh-indoorTemp |
 | 50660 | Temperatur: BT50 | °C | number |  | 22.9°C |  | 0.1 |  |  | sh-indoorTemp |
-| 55000 | Priority |  | enum |  | Hot water |  | 1 |  | 10=Off, 20=Hot water, 25=Ext. hot water, 30=Heating, 40=Pool, 41=Pool 2, 50=Transfer, 60=Cooling |  |
+| 55000 | Priority |  | enum |  | Hot water |  | 1 | operating_priority | 10=Off, 20=Hot water, 25=Ext. hot water, 30=Heating, 40=Pool, 41=Pool 2, 50=Transfer, 60=Cooling |  |
 | 56150 | All sub units operating prio |  | number |  | 0 |  | 1 |  |  |  |

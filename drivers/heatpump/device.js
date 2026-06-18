@@ -27,7 +27,16 @@ const POINT_MAP = {
   32628: pointMap('measure_temperature.hotwater'), // Hot water temperature
   8: pointMap('measure_temperature.supply'), // Supply line (BT2)
   10: pointMap('measure_temperature.return'), // Return line (BT3)
+  1708: pointMap('measure_temperature.calculated_supply'), // Calculated supply climate system 1
   29972: pointMap('hotwater_amount'), // Hot water amount (min)
+  // Info-only operational sensors:
+  55000: pointMap('operating_priority', { kind: 'enum' }), // Priority (10–60)
+  1756: pointMap('additional_heat_power'), // Power internal additional heat (kW)
+  5927: pointMap('compressor_frequency'), // Current compressor frequency (Hz)
+  1975: pointMap('pump_speed'), // Heating medium pump speed (GP1) (%)
+  26945: pointMap('airflow'), // Airflow (BP16) (m³/h)
+  26411: pointMap('add_heat_time_heating'), // Op. time el. add. heat for heating (h)
+  1865: pointMap('add_heat_time_hotwater'), // Op. time el. add. heat for hot water (h)
   // Writable controls:
   47751: pointMap('target_temperature', {
     kind: 'number', scale: 0.1, writable: true, rawMin: 50, rawMax: 350,
@@ -69,9 +78,16 @@ const ROLES = {
       'measure_temperature.outdoor',
       'measure_temperature.supply',
       'measure_temperature.return',
+      'measure_temperature.calculated_supply',
+      'target_temperature',
       'measure_power',
       'meter_power',
-      'target_temperature',
+      'additional_heat_power',
+      'operating_priority',
+      'compressor_frequency',
+      'pump_speed',
+      'airflow',
+      'add_heat_time_heating',
       'ventilation_boost',
       'ventilation_mode',
     ],
@@ -84,6 +100,7 @@ const ROLES = {
       'hotwater_amount',
       'measure_power',
       'meter_power',
+      'add_heat_time_hotwater',
       'hot_water_boost',
     ],
   },
