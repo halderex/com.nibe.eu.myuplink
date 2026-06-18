@@ -122,6 +122,10 @@ store).
 
 See `docs/myuplink-api-responses.md` for OAuth endpoints and the points/capability mapping.
 
+`docs/app-device-datapoints.md` lists exactly what each device exposes (heating vs hot water).
+**Keep it in sync** whenever you change `ROLES` or `POINT_MAP` in `drivers/heatpump/device.js`, or
+the capability titles in `drivers/heatpump/driver.compose.json`.
+
 ## API reference
 
 - **Swagger**: https://api.myuplink.com/swagger/index.html — authoritative reference for all endpoints, request/response schemas, and auth requirements. Consult before planning any API work.
