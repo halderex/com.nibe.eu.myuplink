@@ -1,0 +1,20 @@
+name: Validate Homey App
+
+# Validate every PR and branch push so problems surface before merge.
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main # main is covered by publish.yml
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate at publish level
+        uses: athombv/github-action-homey-app-validate@master
+        with:
+          level: publish

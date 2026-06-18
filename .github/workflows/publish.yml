@@ -1,0 +1,42 @@
+name: Publish Homey App
+
+# Publish to the Homey App Store on every merge to main. The app version must
+# already be bumped in the merged commit (see .homeycompose/app.json +
+# .homeychangelog.json) — the store rejects republishing an existing version.
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # env.json is gitignored but bundled at build time (it carries the
+      # dedicated myUplink OAuth client creds). Recreate it from secrets so the
+      # published bundle can authenticate. See CLAUDE.md "Credentials setup".
+      - name: Write env.json
+        run: |
+          cat > env.json <<EOF
+          {
+            "CLIENT_ID": "${{ secrets.CLIENT_ID }}",
+            "CLIENT_SECRET": "${{ secrets.CLIENT_SECRET }}"
+          }
+          EOF
+
+      - name: Validate at publish level
+        uses: athombv/github-action-homey-app-validate@master
+        with:
+          level: publish
+
+      - name: Publish to Homey App Store
+        id: publish
+        uses: athombv/github-action-homey-app-publish@master
+        with:
+          personal_access_token: ${{ secrets.HOMEY_PAT }}
+
+      - name: Summary
+        run: echo "Published. Manage the release at ${{ steps.publish.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
