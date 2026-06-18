@@ -1,4 +1,8 @@
 {
+  "0.9.2": {
+    "en": "Add an icon to the Boost hot water Flow card.",
+    "sv": "Lägger till en ikon för Flow-kortet Forcera varmvatten."
+  },
   "0.9.1": {
     "en": "Fix the app icon not showing.",
     "sv": "Rättar appikonen som inte visades."

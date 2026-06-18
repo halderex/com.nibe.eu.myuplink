@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.nibe.eu.myuplink",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "platforms": [
@@ -47,6 +47,7 @@
           "en": "Boost hot water",
           "sv": "Forcera varmvatten"
         },
+        "icon": "/assets/hotwater.svg",
         "titleFormatted": {
           "en": "Boost hot water on [[device]] for [[duration]]",
           "sv": "Forcera varmvatten på [[device]] i [[duration]]"
