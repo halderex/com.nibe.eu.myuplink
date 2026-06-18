@@ -26,6 +26,8 @@ const POINT_MAP = {
   48351: pointMap('measure_temperature'), // Indoor temperature (Climate system 1)
   32628: pointMap('measure_temperature.hotwater'), // Hot water temperature
   8: pointMap('measure_temperature.supply'), // Supply line (BT2)
+  10: pointMap('measure_temperature.return'), // Return line (BT3)
+  29972: pointMap('hotwater_amount'), // Hot water amount (min)
   // Writable controls:
   47751: pointMap('target_temperature', {
     kind: 'number', scale: 0.1, writable: true, rawMin: 50, rawMax: 350,
@@ -66,6 +68,7 @@ const ROLES = {
       'measure_temperature',
       'measure_temperature.outdoor',
       'measure_temperature.supply',
+      'measure_temperature.return',
       'measure_power',
       'meter_power',
       'target_temperature',
@@ -78,6 +81,7 @@ const ROLES = {
     matches: (priority) => HOTWATER_PRIORITIES.has(priority),
     capabilities: [
       'measure_temperature.hotwater',
+      'hotwater_amount',
       'measure_power',
       'meter_power',
       'hot_water_boost',

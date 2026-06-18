@@ -17,8 +17,8 @@ class NibeDriver extends OAuth2Driver {
     // can attribute cost per category (it only costs a device's primary measure/meter_power, not
     // sub-capabilities). They share the same myUplink device id; `role` keeps their data unique.
     const roles = [
-      { role: 'heating', suffix: this.homey.__('pair.heating') },
-      { role: 'hotwater', suffix: this.homey.__('pair.hotwater') },
+      { role: 'heating', suffix: this.homey.__('pair.heating'), icon: '/heating.svg' },
+      { role: 'hotwater', suffix: this.homey.__('pair.hotwater'), icon: '/hotwater.svg' },
     ];
 
     const devices = [];
@@ -27,11 +27,12 @@ class NibeDriver extends OAuth2Driver {
         if (!apiDevice.id) continue;
         const product = apiDevice.product || {};
         const baseName = product.name || 'Nibe Heat Pump';
-        for (const { role, suffix } of roles) {
+        for (const { role, suffix, icon } of roles) {
           devices.push({
             name: `${baseName} — ${suffix}`,
             data: { id: apiDevice.id, role },
             store: { systemId: system.systemId },
+            icon, // relative to /drivers/heatpump/assets/ — applied at (re-)pair time
           });
         }
       }

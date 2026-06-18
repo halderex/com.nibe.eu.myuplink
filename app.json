@@ -133,6 +133,8 @@
         "measure_temperature.outdoor",
         "measure_temperature.hotwater",
         "measure_temperature.supply",
+        "measure_temperature.return",
+        "hotwater_amount",
         "measure_power",
         "meter_power",
         "target_temperature",
@@ -163,6 +165,12 @@
           "title": {
             "en": "Supply",
             "sv": "Tillopp"
+          }
+        },
+        "measure_temperature.return": {
+          "title": {
+            "en": "Return",
+            "sv": "Retur"
           }
         },
         "meter_power": {
@@ -233,6 +241,22 @@
       "setable": true,
       "uiComponent": "toggle",
       "insights": false
+    },
+    "hotwater_amount": {
+      "type": "number",
+      "title": {
+        "en": "Hot water amount",
+        "sv": "Varmvattenmängd"
+      },
+      "units": {
+        "en": "min",
+        "sv": "min"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 0
     },
     "ventilation_boost": {
       "type": "boolean",

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid meet">
+  <g fill="#000000">
+    <!-- rising steam -->
+    <circle cx="100" cy="24" r="5"/>
+    <circle cx="84" cy="44" r="6"/>
+    <circle cx="116" cy="38" r="6"/>
+    <!-- water droplet -->
+    <path d="M100 64 C100 64 140 120 140 142 a40 40 0 1 1 -80 0 C60 120 100 64 100 64 Z"/>
+  </g>
+</svg>
