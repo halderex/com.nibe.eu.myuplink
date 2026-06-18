@@ -1,0 +1,10 @@
+{
+  "type": "number",
+  "title": { "en": "Hot water amount", "sv": "Varmvattenmängd" },
+  "units": { "en": "min", "sv": "min" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "decimals": 0
+}

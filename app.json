@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.nibe.eu.myuplink",
-  "version": "0.1.0",
+  "version": "0.9.0",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "platforms": [
@@ -48,14 +48,14 @@
           "sv": "Forcera varmvatten"
         },
         "titleFormatted": {
-          "en": "Boost hot water for [[duration]]",
-          "sv": "Forcera varmvatten i [[duration]]"
+          "en": "Boost hot water on [[device]] for [[duration]]",
+          "sv": "Forcera varmvatten på [[device]] i [[duration]]"
         },
         "args": [
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=heatpump"
+            "filter": "capabilities=hot_water_boost"
           },
           {
             "type": "dropdown",
@@ -128,23 +128,27 @@
         "sv": "Nibe Värmepump"
       },
       "class": "heatpump",
-      "energy": {
-        "cumulative": true,
-        "cumulativeImportedCapability": "meter_power"
-      },
       "capabilities": [
         "measure_temperature",
-        "measure_temperature.outdoor",
-        "measure_temperature.hotwater",
-        "measure_temperature.supply",
-        "measure_power",
-        "measure_power.heating",
-        "measure_power.hotwater",
-        "meter_power",
         "target_temperature",
-        "hot_water_boost",
+        "operating_priority",
+        "compressor_frequency",
+        "measure_temperature.supply",
+        "measure_temperature.return",
+        "measure_temperature.calculated_supply",
+        "measure_temperature.outdoor",
+        "pump_speed",
+        "airflow",
+        "measure_temperature.hotwater",
+        "hotwater_amount",
+        "measure_power",
+        "meter_power",
+        "additional_heat_power",
+        "add_heat_time_heating",
         "ventilation_boost",
-        "ventilation_mode"
+        "ventilation_mode",
+        "add_heat_time_hotwater",
+        "hot_water_boost"
       ],
       "capabilitiesOptions": {
         "measure_temperature": {
@@ -168,31 +172,32 @@
         "measure_temperature.supply": {
           "title": {
             "en": "Supply",
-            "sv": "Tillopp"
+            "sv": "Framledning"
           }
         },
-        "measure_power.heating": {
+        "measure_temperature.return": {
           "title": {
-            "en": "Power (heating)",
-            "sv": "Effekt (värme)"
+            "en": "Return",
+            "sv": "Returledning"
           }
         },
-        "measure_power.hotwater": {
+        "measure_temperature.calculated_supply": {
           "title": {
-            "en": "Power (hot water)",
-            "sv": "Effekt (varmvatten)"
+            "en": "Calculated supply",
+            "sv": "Beräknad framledning"
           }
         },
         "meter_power": {
           "title": {
-            "en": "Total consumption",
-            "sv": "Total förbrukning"
-          }
+            "en": "Consumption",
+            "sv": "Förbrukning"
+          },
+          "decimals": 3
         },
         "target_temperature": {
           "title": {
             "en": "Indoor",
-            "sv": "Inomhus"
+            "sv": "Måltemperatur"
           },
           "min": 5,
           "max": 35,
@@ -240,6 +245,81 @@
     }
   ],
   "capabilities": {
+    "add_heat_time_heating": {
+      "type": "number",
+      "title": {
+        "en": "Add. heat time (heating)",
+        "sv": "Tillsats drifttid (värme)"
+      },
+      "units": {
+        "en": "h"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 1
+    },
+    "add_heat_time_hotwater": {
+      "type": "number",
+      "title": {
+        "en": "Add. heat time (hot water)",
+        "sv": "Tillsats drifttid (varmvatten)"
+      },
+      "units": {
+        "en": "h"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 1
+    },
+    "additional_heat_power": {
+      "type": "number",
+      "title": {
+        "en": "Additional heat power",
+        "sv": "Tillsatseffekt"
+      },
+      "units": {
+        "en": "kW"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 2
+    },
+    "airflow": {
+      "type": "number",
+      "title": {
+        "en": "Airflow",
+        "sv": "Luftflöde"
+      },
+      "units": {
+        "en": "m³/h"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 1
+    },
+    "compressor_frequency": {
+      "type": "number",
+      "title": {
+        "en": "Compressor frequency",
+        "sv": "Kompressorfrekvens"
+      },
+      "units": {
+        "en": "Hz"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 0
+    },
     "hot_water_boost": {
       "type": "boolean",
       "title": {
@@ -250,6 +330,106 @@
       "setable": true,
       "uiComponent": "toggle",
       "insights": false
+    },
+    "hotwater_amount": {
+      "type": "number",
+      "title": {
+        "en": "Hot water amount",
+        "sv": "Varmvattenmängd"
+      },
+      "units": {
+        "en": "min",
+        "sv": "min"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 0
+    },
+    "operating_priority": {
+      "type": "enum",
+      "title": {
+        "en": "Priority",
+        "sv": "Prioritet"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": false,
+      "values": [
+        {
+          "id": "10",
+          "title": {
+            "en": "Off",
+            "sv": "Av"
+          }
+        },
+        {
+          "id": "20",
+          "title": {
+            "en": "Hot water",
+            "sv": "Varmvatten"
+          }
+        },
+        {
+          "id": "25",
+          "title": {
+            "en": "External hot water",
+            "sv": "Externt varmvatten"
+          }
+        },
+        {
+          "id": "30",
+          "title": {
+            "en": "Heating",
+            "sv": "Värme"
+          }
+        },
+        {
+          "id": "40",
+          "title": {
+            "en": "Pool",
+            "sv": "Pool"
+          }
+        },
+        {
+          "id": "41",
+          "title": {
+            "en": "Pool 2",
+            "sv": "Pool 2"
+          }
+        },
+        {
+          "id": "50",
+          "title": {
+            "en": "Transfer",
+            "sv": "Överföring"
+          }
+        },
+        {
+          "id": "60",
+          "title": {
+            "en": "Cooling",
+            "sv": "Kyla"
+          }
+        }
+      ]
+    },
+    "pump_speed": {
+      "type": "number",
+      "title": {
+        "en": "Pump speed",
+        "sv": "Pumphastighet"
+      },
+      "units": {
+        "en": "%"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "insights": true,
+      "decimals": 0
     },
     "ventilation_boost": {
       "type": "boolean",

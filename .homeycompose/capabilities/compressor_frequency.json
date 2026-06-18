@@ -1,0 +1,10 @@
+{
+  "type": "number",
+  "title": { "en": "Compressor frequency", "sv": "Kompressorfrekvens" },
+  "units": { "en": "Hz" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "decimals": 0
+}

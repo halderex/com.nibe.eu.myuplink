@@ -4,23 +4,27 @@
     "sv": "Nibe Värmepump"
   },
   "class": "heatpump",
-  "energy": {
-    "cumulative": true,
-    "cumulativeImportedCapability": "meter_power"
-  },
   "capabilities": [
     "measure_temperature",
-    "measure_temperature.outdoor",
-    "measure_temperature.hotwater",
-    "measure_temperature.supply",
-    "measure_power",
-    "measure_power.heating",
-    "measure_power.hotwater",
-    "meter_power",
     "target_temperature",
-    "hot_water_boost",
+    "operating_priority",
+    "compressor_frequency",
+    "measure_temperature.supply",
+    "measure_temperature.return",
+    "measure_temperature.calculated_supply",
+    "measure_temperature.outdoor",
+    "pump_speed",
+    "airflow",
+    "measure_temperature.hotwater",
+    "hotwater_amount",
+    "measure_power",
+    "meter_power",
+    "additional_heat_power",
+    "add_heat_time_heating",
     "ventilation_boost",
-    "ventilation_mode"
+    "ventilation_mode",
+    "add_heat_time_hotwater",
+    "hot_water_boost"
   ],
   "capabilitiesOptions": {
     "measure_temperature": {
@@ -33,19 +37,20 @@
       "title": { "en": "Hot water", "sv": "Varmvatten" }
     },
     "measure_temperature.supply": {
-      "title": { "en": "Supply", "sv": "Tillopp" }
+      "title": { "en": "Supply", "sv": "Framledning" }
     },
-    "measure_power.heating": {
-      "title": { "en": "Power (heating)", "sv": "Effekt (värme)" }
+    "measure_temperature.return": {
+      "title": { "en": "Return", "sv": "Returledning" }
     },
-    "measure_power.hotwater": {
-      "title": { "en": "Power (hot water)", "sv": "Effekt (varmvatten)" }
+    "measure_temperature.calculated_supply": {
+      "title": { "en": "Calculated supply", "sv": "Beräknad framledning" }
     },
     "meter_power": {
-      "title": { "en": "Total consumption", "sv": "Total förbrukning" }
+      "title": { "en": "Consumption", "sv": "Förbrukning" },
+      "decimals": 3
     },
     "target_temperature": {
-      "title": { "en": "Indoor", "sv": "Inomhus" },
+      "title": { "en": "Indoor", "sv": "Måltemperatur" },
       "min": 5,
       "max": 35,
       "step": 0.5,

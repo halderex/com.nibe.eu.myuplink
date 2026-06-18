@@ -1,0 +1,18 @@
+{
+  "type": "enum",
+  "title": { "en": "Priority", "sv": "Prioritet" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": false,
+  "values": [
+    { "id": "10", "title": { "en": "Off", "sv": "Av" } },
+    { "id": "20", "title": { "en": "Hot water", "sv": "Varmvatten" } },
+    { "id": "25", "title": { "en": "External hot water", "sv": "Externt varmvatten" } },
+    { "id": "30", "title": { "en": "Heating", "sv": "Värme" } },
+    { "id": "40", "title": { "en": "Pool", "sv": "Pool" } },
+    { "id": "41", "title": { "en": "Pool 2", "sv": "Pool 2" } },
+    { "id": "50", "title": { "en": "Transfer", "sv": "Överföring" } },
+    { "id": "60", "title": { "en": "Cooling", "sv": "Kyla" } }
+  ]
+}

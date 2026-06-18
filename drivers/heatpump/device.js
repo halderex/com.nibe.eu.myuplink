@@ -18,14 +18,25 @@ function pointMap(capability, {
   };
 }
 
-// myUplink parameterId -> capability mapping. See docs/myuplink-api-responses.md.
+// myUplink parameterId -> capability mapping for directly-read points (temps + controls). See
+// docs/myuplink-api-responses.md. Power (22130) and the cumulative meter (28393) are NOT here:
+// they're split per category into the derived measure_power / accumulated meter_power below.
 const POINT_MAP = {
   4: pointMap('measure_temperature.outdoor'), // Current outdoor temperature (BT1)
   48351: pointMap('measure_temperature'), // Indoor temperature (Climate system 1)
   32628: pointMap('measure_temperature.hotwater'), // Hot water temperature
   8: pointMap('measure_temperature.supply'), // Supply line (BT2)
-  22130: pointMap('measure_power'), // Instantaneous used power (W)
-  28393: pointMap('meter_power'), // Tot. consumption (cumulative kWh)
+  10: pointMap('measure_temperature.return'), // Return line (BT3)
+  1708: pointMap('measure_temperature.calculated_supply'), // Calculated supply climate system 1
+  29972: pointMap('hotwater_amount'), // Hot water amount (min)
+  // Info-only operational sensors:
+  55000: pointMap('operating_priority', { kind: 'enum' }), // Priority (10–60)
+  1756: pointMap('additional_heat_power'), // Power internal additional heat (kW)
+  5927: pointMap('compressor_frequency'), // Current compressor frequency (Hz)
+  1975: pointMap('pump_speed'), // Heating medium pump speed (GP1) (%)
+  26945: pointMap('airflow'), // Airflow (BP16) (m³/h)
+  26411: pointMap('add_heat_time_heating'), // Op. time el. add. heat for heating (h)
+  1865: pointMap('add_heat_time_hotwater'), // Op. time el. add. heat for hot water (h)
   // Writable controls:
   47751: pointMap('target_temperature', {
     kind: 'number', scale: 0.1, writable: true, rawMin: 50, rawMax: 350,
@@ -47,22 +58,71 @@ const PREMIUM_GATED_CAPABILITIES = {
   ventilation_mode: 'setVentilationMode',
 };
 
-// Instantaneous-power split for per-tariff-window cost attribution. The pump exposes a single
-// live power reading (22130) plus its operating priority (14950); we attribute all of the
-// instantaneous power to whichever category the pump is currently serving. Approximate, but
-// updates every minute — fine-grained enough for 15-minute spot-tariff windows that the flat
-// kWh counters (refreshed only every ~20–30 min) are too coarse for.
+// Operating priority (param 14950): {0=Off, 1=Heating, 2=Cooling, 3=Hot water, 4=Pool,
+// 5=Pool 2, 6=Pre-heating}. Only "3" is hot water; everything else (heating, pre-heating, and —
+// crucially — Off/standby) is non-production base load: on an exhaust-air S735 the ventilation
+// fan, circulation pumps and electronics draw power 24/7.
+const HOTWATER_PRIORITIES = new Set([3]);
+
+// Each pump is paired as two consumer devices distinguished by data.role, so Homey Energy can
+// cost heating and hot water separately. Each role gets a focused capability set, its own device
+// class, and a `matches(priority)` predicate selecting the power that counts as "its" consumption.
+// Heating deliberately matches the COMPLEMENT of hot water (incl. idle/standby), so the two shares
+// always sum to 1 — the meters then reconcile to the pump's true total and nothing is dropped.
+const ROLES = {
+  heating: {
+    class: 'heatpump',
+    matches: (priority) => !HOTWATER_PRIORITIES.has(priority), // heating + base/idle load
+    capabilities: [
+      'measure_temperature',
+      'target_temperature',
+      'operating_priority',
+      'compressor_frequency',
+      'measure_temperature.supply',
+      'measure_temperature.return',
+      'measure_temperature.calculated_supply',
+      'measure_temperature.outdoor',
+      'pump_speed',
+      'airflow',
+      'measure_power',
+      'meter_power',
+      'additional_heat_power',
+      'add_heat_time_heating',
+      'ventilation_boost',
+      'ventilation_mode',
+    ],
+  },
+  hotwater: {
+    class: 'boiler',
+    matches: (priority) => HOTWATER_PRIORITIES.has(priority),
+    capabilities: [
+      'measure_temperature.hotwater',
+      'hotwater_amount',
+      'measure_power',
+      'meter_power',
+      'add_heat_time_hotwater',
+      'hot_water_boost',
+    ],
+  },
+};
+const ALL_ROLE_CAPABILITIES = [...new Set([
+  ...ROLES.heating.capabilities, ...ROLES.hotwater.capabilities,
+])];
+
+// Live power, operating priority, and the real cumulative meter (kWh) — used to derive each
+// device's per-category measure_power and meter_power.
 const POWER_POINT = '22130';
 const PRIORITY_POINT = '14950';
-const HEATING_PRIORITIES = new Set([1, 6]); // 1=Heating, 6=Pre-heating
-const HOTWATER_PRIORITIES = new Set([3]); // 3=Hot water
-const MEASURE_POWER_HEATING = 'measure_power.heating';
-const MEASURE_POWER_HOTWATER = 'measure_power.hotwater';
-// Capabilities computed from POWER_POINT + PRIORITY_POINT (no 1:1 POINT_MAP entry).
-const DERIVED_CAPABILITIES = [MEASURE_POWER_HEATING, MEASURE_POWER_HOTWATER];
+const TOTAL_METER_POINT = '28393';
 
 const POLL_INTERVAL_MS = 5 * 60 * 1000;
 const FAST_POLL_INTERVAL_MS = 60 * 1000;
+// Cap the per-window meter delta we attribute. A real 5-minute increment can't exceed a fraction
+// of a kWh; anything larger means a counter reset/rollover or a long restart gap — skip it (just
+// re-baseline) rather than dumping a spurious spike into one category. Same upper bound guards the
+// power-integration interval (in hours) against restart gaps polluting the attribution ratio.
+const SANE_MAX_DELTA_KWH = 5;
+const MAX_INTEGRATION_HOURS = 0.5;
 
 /** Convert a myUplink point into the value a Homey capability expects. */
 function readCapabilityValue(map, point) {
@@ -91,13 +151,35 @@ class NibeDevice extends OAuth2Device {
     this._intervalId = null;
     this._powerIntervalId = null;
 
-    // Add/remove mapped capabilities to match what this device supports, so existing devices
-    // self-heal after an app update and Premium-only controls don't show up (and silently 403)
-    // on accounts without them.
+    this._role = ROLES[this.getData().role] ? this.getData().role : 'heating';
+    this._matches = ROLES[this._role].matches;
+    // Power integrated (Wh) over the current meter window: total across the pump, and the part
+    // spent serving this device's category — their ratio splits the real meter delta.
+    this._catWh = 0;
+    this._totWh = 0;
+    this._lastPriority = null;
+    this._lastFastTs = Date.now();
+    // meter_power is driven smoothly by integrating live power each minute, then anchored to the
+    // real meter (28393) at the 5-min poll. Mirror the persisted value in memory to avoid a store
+    // read every minute.
+    const stored = this.getStoreValue('meterKwh');
+    this._meterKwh = typeof stored === 'number' ? stored : 0;
+
+    try {
+      const cls = ROLES[this._role].class;
+      if (this.getClass() !== cls) await this.setClass(cls);
+    } catch (err) {
+      this.error(`Could not set device class: ${err}`);
+    }
+
+    // Add/remove capabilities to match this role (and Premium availability), so devices self-heal
+    // after an app update and Premium-only controls don't show up (and silently 403) without them.
     await this._syncCapabilities(await this._fetchFeatures());
-    // Capabilities derived from the power split aren't in POINT_MAP — ensure they exist so
-    // devices paired before this feature self-heal on update.
-    await this._ensureDerivedCapabilities();
+
+    // Restore the accumulated meter so meter_power stays monotonic across restarts.
+    if (this.hasCapability('meter_power')) {
+      await this.setCapabilityValue('meter_power', this._meterKwh).catch(() => {});
+    }
 
     // Map each writable capability back to its parameter for the set listeners.
     this._writable = {};
@@ -136,49 +218,37 @@ class NibeDevice extends OAuth2Device {
   }
 
   /**
-   * Ensure the device's capabilities match what it supports. Sensor/temperature capabilities are
-   * always present. Premium-gated controls are added only when their availableFeatures flag is
-   * true, and removed otherwise. When features is null (fetch failed) gated capabilities are left
-   * untouched.
+   * Ensure the device's capabilities match its role. Capabilities outside the role's set are
+   * removed; capabilities in it are added — except Premium-gated controls, which are added only
+   * when their availableFeatures flag is true. When features is null (fetch failed) a gated
+   * capability the role wants is left untouched; one the role doesn't want is still removed.
    */
   async _syncCapabilities(features) {
-    const capabilities = [...new Set(Object.values(POINT_MAP).map((m) => m.capability))];
-    for (const capability of capabilities) {
+    const desired = new Set(ROLES[this._role].capabilities);
+    for (const capability of ALL_ROLE_CAPABILITIES) {
       const featureKey = PREMIUM_GATED_CAPABILITIES[capability];
-      let desired;
-      if (featureKey === undefined) {
-        desired = true;
+      let want;
+      if (!desired.has(capability)) {
+        want = false;
+      } else if (featureKey === undefined) {
+        want = true;
       } else if (features === null) {
-        continue;
+        continue; // can't determine Premium availability — leave a wanted gated capability as-is
       } else {
-        desired = Boolean(features[featureKey]);
+        want = Boolean(features[featureKey]);
       }
 
       const has = this.hasCapability(capability);
       try {
-        if (desired && !has) {
+        if (want && !has) {
           await this.addCapability(capability);
           this.log(`Added capability: ${capability}`);
-        } else if (!desired && has) {
+        } else if (!want && has) {
           await this.removeCapability(capability);
-          this.log(`Removed unsupported capability: ${capability}`);
+          this.log(`Removed capability: ${capability}`);
         }
       } catch (err) {
         this.error(`Could not update capability ${capability}: ${err}`);
-      }
-    }
-  }
-
-  /** Add the power-split capabilities if missing (they have no POINT_MAP entry). */
-  async _ensureDerivedCapabilities() {
-    for (const capability of DERIVED_CAPABILITIES) {
-      if (!this.hasCapability(capability)) {
-        try {
-          await this.addCapability(capability);
-          this.log(`Added capability: ${capability}`);
-        } catch (err) {
-          this.error(`Could not add capability ${capability}: ${err}`);
-        }
       }
     }
   }
@@ -200,7 +270,9 @@ class NibeDevice extends OAuth2Device {
       const points = await this.oAuth2Client.getPoints(deviceId, { language });
 
       let updated = 0;
+      let totalPoint = null;
       for (const point of points) {
+        if (String(point.parameterId) === TOTAL_METER_POINT) totalPoint = point;
         const map = POINT_MAP[String(point.parameterId)];
         if (!map || !this.hasCapability(map.capability)) continue;
         const value = readCapabilityValue(map, point);
@@ -211,6 +283,8 @@ class NibeDevice extends OAuth2Device {
         }
       }
 
+      await this._accumulateMeter(totalPoint);
+
       this._logDebug(`Poll complete: ${points.length} points received, ${updated} capabilities updated`);
       await this.setAvailable();
     } catch (err) {
@@ -220,8 +294,51 @@ class NibeDevice extends OAuth2Device {
   }
 
   /**
-   * Fast poll: split the live instantaneous power across heating/hot water by the pump's current
-   * operating priority, so cost can be attributed within short tariff windows.
+   * Anchor meter_power to the real cumulative meter (28393). The minute-by-minute value is driven
+   * by power integration (see `_pollPower`) for smooth, sub-kWh increments; here we attribute the
+   * real meter's increase since the last poll to this device's category (power-weighted share) and
+   * pull the smooth meter *up* to that accurate total if integration lagged — e.g. electric
+   * additional heat that shows in 28393 but not in the 22130 power reading. Never decreases, so
+   * meter_power stays monotonic and reconciled with the pump's billed total.
+   */
+  async _accumulateMeter(totalPoint) {
+    const total = MyUplinkOAuth2Client.pointValue(totalPoint);
+    if (total === null) return;
+
+    const last = this.getStoreValue('lastTotal');
+    let trueKwh = this.getStoreValue('trueKwh');
+    if (typeof trueKwh !== 'number') trueKwh = this._meterKwh; // seed from the smooth meter
+
+    if (typeof last === 'number') {
+      const delta = total - last;
+      if (delta > 0 && delta < SANE_MAX_DELTA_KWH) {
+        const share = this._totWh > 0
+          ? this._catWh / this._totWh
+          : (this._matches(this._lastPriority) ? 1 : 0);
+        trueKwh += delta * share;
+        await this.setStoreValue('trueKwh', trueKwh);
+        if (trueKwh > this._meterKwh) {
+          this._meterKwh = trueKwh;
+          await this.setStoreValue('meterKwh', this._meterKwh);
+          if (this.hasCapability('meter_power')) await this.setCapabilityValue('meter_power', this._meterKwh);
+        }
+        this._logDebug(`Meter anchor: Δ=${delta.toFixed(3)}kWh share=${share.toFixed(3)} true=${trueKwh.toFixed(3)} meter=${this._meterKwh.toFixed(3)}kWh`);
+      } else if (delta !== 0) {
+        this._logDebug(`Meter: ignoring delta ${delta} (reset/rollover/gap), re-baselining`);
+      }
+    }
+
+    await this.setStoreValue('lastTotal', total);
+    // Reset the window so the next anchor is split by fresh power integration.
+    this._catWh = 0;
+    this._totWh = 0;
+  }
+
+  /**
+   * Fast poll: set this device's live measure_power to the pump's power when it's serving this
+   * category (else 0), integrate power over elapsed time into the window accumulators that weight
+   * the meter split, and grow meter_power smoothly by the category's energy this interval (the
+   * coarse 28393 meter only steps in whole kWh, so this is what gives sub-kWh resolution).
    */
   async _pollPower() {
     try {
@@ -232,20 +349,30 @@ class NibeDevice extends OAuth2Device {
       const byId = {};
       for (const point of points) byId[String(point.parameterId)] = point;
 
+      const now = Date.now();
+      const dtH = (now - this._lastFastTs) / 3600000;
+      this._lastFastTs = now;
+
       const power = MyUplinkOAuth2Client.pointValue(byId[POWER_POINT]);
       if (power === null) return;
       const priorityVal = MyUplinkOAuth2Client.pointValue(byId[PRIORITY_POINT]);
       const priority = priorityVal === null ? null : Math.trunc(priorityVal);
+      this._lastPriority = priority;
 
-      const heating = HEATING_PRIORITIES.has(priority) ? power : 0.0;
-      const hotwater = HOTWATER_PRIORITIES.has(priority) ? power : 0.0;
+      const inCategory = this._matches(priority);
+      if (dtH > 0 && dtH < MAX_INTEGRATION_HOURS) {
+        this._totWh += power * dtH;
+        if (inCategory) {
+          this._catWh += power * dtH;
+          this._meterKwh += (power * dtH) / 1000;
+          await this.setStoreValue('meterKwh', this._meterKwh);
+          if (this.hasCapability('meter_power')) await this.setCapabilityValue('meter_power', this._meterKwh);
+        }
+      }
 
-      if (this.hasCapability('measure_power')) await this.setCapabilityValue('measure_power', power);
-      if (this.hasCapability(MEASURE_POWER_HEATING)) await this.setCapabilityValue(MEASURE_POWER_HEATING, heating);
-      if (this.hasCapability(MEASURE_POWER_HOTWATER)) await this.setCapabilityValue(MEASURE_POWER_HOTWATER, hotwater);
-      this._logDebug(
-        `Power poll: total=${power}W priority=${priority} -> heating=${heating}W hotwater=${hotwater}W`,
-      );
+      const live = inCategory ? power : 0.0;
+      if (this.hasCapability('measure_power')) await this.setCapabilityValue('measure_power', live);
+      this._logDebug(`Power poll: total=${power}W priority=${priority} inCategory=${inCategory} -> ${live}W meter=${this._meterKwh.toFixed(3)}kWh`);
     } catch (err) {
       // Don't flip availability on a transient power-poll error — the main poll owns that.
       this.error(`Power poll failed: ${err}`);

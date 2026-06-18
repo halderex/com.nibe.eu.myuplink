@@ -1,0 +1,10 @@
+{
+  "type": "number",
+  "title": { "en": "Add. heat time (hot water)", "sv": "Tillsats drifttid (varmvatten)" },
+  "units": { "en": "h" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "decimals": 1
+}

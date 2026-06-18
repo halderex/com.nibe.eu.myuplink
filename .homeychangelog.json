@@ -1,5 +1,13 @@
 {
+  "0.9.0": {
+    "en": "Adds live readings and controls: indoor/outdoor/supply/return temperatures, hot-water temperature, compressor frequency, pump speed, airflow and run times, plus indoor target temperature, hot-water boost and (on supported pumps) ventilation boost and mode, and a Boost hot water Flow action.",
+    "sv": "Lägger till liveavläsningar och styrning: inomhus-/utomhus-/framlednings-/returtemperaturer, varmvattentemperatur, kompressorfrekvens, pumphastighet, luftflöde och drifttider, samt inomhus måltemperatur, varmvattenboost och (på pumpar som stöder det) ventilationsboost och -läge, plus en Flow-åtgärd för att boosta varmvatten."
+  },
   "1.0.0": {
     "en": "First version!"
+  },
+  "0.2.0": {
+    "en": "The heat pump now reports to Homey Energy as two consumer devices — Heating and Hot water — each with its own live power and cost. Breaking change: remove your old heat-pump device and re-pair to get the two new devices.",
+    "sv": "Värmepumpen rapporterar nu till Homey Energy som två förbrukarenheter — Värme och Varmvatten — var och en med egen effekt och kostnad. Brytande ändring: ta bort din gamla värmepumpsenhet och para om för att få de två nya enheterna."
   }
 }

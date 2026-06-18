@@ -9,5 +9,9 @@
     "unavailable": "myUplink unreachable — check your connection or re-pair.",
     "write_forbidden": "No write access — re-pair this device to allow changing settings.",
     "write_premium": "This control requires a myUplink Premium subscription."
+  },
+  "pair": {
+    "heating": "Heating",
+    "hotwater": "Hot water"
   }
 }

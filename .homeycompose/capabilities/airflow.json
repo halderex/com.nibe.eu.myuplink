@@ -1,0 +1,10 @@
+{
+  "type": "number",
+  "title": { "en": "Airflow", "sv": "Luftflöde" },
+  "units": { "en": "m³/h" },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "insights": true,
+  "decimals": 1
+}
