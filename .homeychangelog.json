@@ -1,4 +1,8 @@
 {
+  "0.9.4": {
+    "en": "Fix the app icon showing as a plain red circle.",
+    "sv": "Rättar appikonen som visades som en enkel röd cirkel."
+  },
   "0.9.3": {
     "en": "Expand README in English and Swedish with a detailed explanation of how the app uses the heat pump's operating priority to split energy between the Heating and Hot water devices.",
     "sv": "Utökar README på engelska och svenska med en detaljerad förklaring av hur appen använder värmepumpens driftsprioritet för att fördela energin mellan Värme- och Varmvattenenheterna."
