@@ -1,4 +1,8 @@
 {
+  "0.9.3": {
+    "en": "Expand README in English and Swedish with a detailed explanation of how the app uses the heat pump's operating priority to split energy between the Heating and Hot water devices.",
+    "sv": "Utökar README på engelska och svenska med en detaljerad förklaring av hur appen använder värmepumpens driftsprioritet för att fördela energin mellan Värme- och Varmvattenenheterna."
+  },
   "0.9.2": {
     "en": "Add an icon to the Boost hot water Flow card.",
     "sv": "Lägger till en ikon för Flow-kortet Forcera varmvatten."
