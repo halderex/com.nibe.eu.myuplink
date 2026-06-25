@@ -1,4 +1,8 @@
 {
+  "0.9.5": {
+    "en": "Fix the app icon showing as a plain red circle.",
+    "sv": "Rättar appikonen som visades som en enkel röd cirkel."
+  },
   "0.9.4": {
     "en": "Fix the app icon showing as a plain red circle.",
     "sv": "Rättar appikonen som visades som en enkel röd cirkel."
